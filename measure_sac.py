@@ -5,7 +5,7 @@ import os.path
 import os
 import binascii
 import time
-from mcontrol import mControl
+from mcontrol import m_control
 import hashlib
  
 # Main measurement util for SaC
@@ -132,4 +132,4 @@ def measureSaC(seriesName, configId):
 if len(sys.argv)<=1:
 	print "expecting measurement series as parameter"
 	sys.exit(1)
-mControl(sys.argv[1:], measureSaC)
+m_control(sys.argv[1:], measureSaC)

@@ -1,6 +1,7 @@
 from mdb import *
 import time
 
+
 # Main measurement control loop
 #
 # interacts with the database to pick the next measurements
@@ -8,58 +9,65 @@ import time
 #
 # runs indefinetly
 
-# mControl input:
-# - seriesNames: list of seriesNames
-# - mfun: measurement function that takes a (seriesName, configurationId) and returns a map with measurement results
-def mControl(seriesNames, mfun):
-	assertSeries(seriesNames)
-	currentSeriesIdx = 0
-	currentSeries = seriesNames[currentSeriesIdx]
-	errorCounter = 0
-	totalTime = 0
-	totalCount = 0
-	while True:
-		# change series after 20 errors
-		if errorCounter>0 and (errorCounter % 20 == 0) and len(seriesNames)>1:
-			currentSeriesIdx = (currentSeriesIdx + 1) % len(seriesNames)
-			currentSeries = seriesNames[currentSeriesIdx]
-			print "#switching to series "+currentSeries
-		nextConfigId = claim_next_measurement(currentSeries)
-		if nextConfigId == None:
-			errorCounter += 1
-			wait = 1
-			#slowly increasing waits between errors
-			if errorCounter > 10:
-				wait = 5
-			if errorCounter > 20:
-				wait = 10
-			if errorCounter > 30:
-				wait = 30
-			if errorCounter > 100:
-				wait = 120
-			print("#no next measurement found, waiting {0} seconds".format(wait))
-			time.sleep(wait)
-		else:
-			#no error, so let's measure
-			errorCounter = 0
-			t1= time.time()
-			mresult = mfun(currentSeries, nextConfigId)
-			if mresult!=None:
-				store_measurements(currentSeries, nextConfigId, mresult)
-			t2=time.time()
-			totalCount += 1	
-			totalTime += (t2-t1)
-			remainingTime = (totalTime/totalCount) * count_remaining_measurements(seriesNames)
-			print("#analysis time: "+format(t2-t1,".2f")+"s, estimated remaining: "+formatTime(remainingTime))
 
-def formatTime(t):
-	d,r=divmod(t,60*60*24)
-	h,r=divmod(r,60*60)
-	m,r=divmod(r,60)
-	return "{0}d {1}h {2}m".format(int(d),int(h),int(m))
+def m_control(series_names, mfun):
+    """
+    m_control input:
+    seriesNames: list of seriesNames
+    mfun: measurement function that takes a (seriesName, configurationId) and returns a map with measurement results
+    """
+    assert_series(series_names)
+    current_series_idx = 0
+    current_series = series_names[current_series_idx]
+    error_counter = 0
+    total_time = 0
+    total_count = 0
 
-def assertSeries(seriesNames):
-	#check that series exist
-	for s in seriesNames:
-		get_series_id(s)
+    while True:
+        # change series after 20 errors
+        if error_counter > 0 and (error_counter % 20 == 0) and len(series_names) > 1:
+            current_series_idx = (current_series_idx + 1) % len(series_names)
+            current_series = series_names[current_series_idx]
+            print "#switching to series " + current_series
 
+        next_config_id = claim_next_measurement(current_series)
+
+        if next_config_id is None:
+            error_counter += 1
+            wait = 1
+            # slowly increasing waits between errors
+            if error_counter > 10:
+                wait = 5
+            if error_counter > 20:
+                wait = 10
+            if error_counter > 30:
+                wait = 30
+            if error_counter > 100:
+                wait = 120
+            print("#no next measurement found, waiting {0} seconds".format(wait))
+            time.sleep(wait)
+        else:
+            # no error, so let's measure
+            error_counter = 0
+            t1 = time.time()
+            m_result = mfun(current_series, next_config_id)
+            if m_result is not None:
+                store_measurements(current_series, next_config_id, m_result)
+            t2 = time.time()
+            total_count += 1
+            total_time += (t2 - t1)
+            remaining_time = (total_time / total_count) * count_remaining_measurements(series_names)
+            print("#analysis time: " + format(t2 - t1, ".2f") + "s, estimated remaining: " + format_time(remaining_time))
+
+
+def format_time(t):
+    d, r = divmod(t, 60 * 60 * 24)
+    h, r = divmod(r, 60 * 60)
+    m, r = divmod(r, 60)
+    return "{0}d {1}h {2}m".format(int(d), int(h), int(m))
+
+
+def assert_series(series_names):
+    # check that series exist
+    for s in series_names:
+        get_series_id(s)
