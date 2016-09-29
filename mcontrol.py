@@ -24,7 +24,7 @@ def mControl(seriesNames, mfun):
 			currentSeriesIdx = (currentSeriesIdx + 1) % len(seriesNames)
 			currentSeries = seriesNames[currentSeriesIdx]
 			print "#switching to series "+currentSeries
-		nextConfigId = claimNextMeasurement(currentSeries)
+		nextConfigId = claim_next_measurement(currentSeries)
 		if nextConfigId == None:
 			errorCounter += 1
 			wait = 1
@@ -45,11 +45,11 @@ def mControl(seriesNames, mfun):
 			t1= time.time()
 			mresult = mfun(currentSeries, nextConfigId)
 			if mresult!=None:
-				storeMeasurements(currentSeries, nextConfigId, mresult)
+				store_measurements(currentSeries, nextConfigId, mresult)
 			t2=time.time()
 			totalCount += 1	
 			totalTime += (t2-t1)
-			remainingTime = (totalTime/totalCount)*countRemainingMeasurements(seriesNames)
+			remainingTime = (totalTime/totalCount) * count_remaining_measurements(seriesNames)
 			print("#analysis time: "+format(t2-t1,".2f")+"s, estimated remaining: "+formatTime(remainingTime))
 
 def formatTime(t):
@@ -61,5 +61,5 @@ def formatTime(t):
 def assertSeries(seriesNames):
 	#check that series exist
 	for s in seriesNames:
-		getSeriesId(s)
+		get_series_id(s)
 

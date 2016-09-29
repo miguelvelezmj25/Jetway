@@ -102,7 +102,7 @@ def measure(logfile, cmd, extraGatherResults=None):
 #program are measured. it used measurements from `time` as well as
 #measurement from external CPU meters and power meters
 def measureSaC(seriesName, configId):
-	param = getConfigParams(configId)
+	param = get_config_params(configId)
 	print "\n*** measuring {0} ({1})".format(configId, param)
 
 	time.sleep(5)	
