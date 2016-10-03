@@ -12,6 +12,8 @@ nfp_id_cache = {}
 def startup():
     global cursor, connection
 
+    shutdown()
+
     config_parser = ConfigParser.RawConfigParser()
     config_file_path = r'.dbconfig'
     config_parser.read(config_file_path)
@@ -39,6 +41,26 @@ def exec_sql_one(sql):
         return None
 
     return r[0]
+
+
+def exec_sql(sql):
+    cursor.execute(sql)
+    r = cursor.fetchall()
+
+    if r is None:
+        return None
+
+    return r
+
+
+def select_options_id(table, options):
+    statement = 'select id from ' + table + ' where options = "' + options + '"'
+
+    ids = []
+    for element in exec_sql(statement):
+        ids.append(str(element[0]))
+
+    return ids
 
 
 def insert(table, columns, values):
@@ -129,3 +151,6 @@ def count_remaining_measurements(series_names):
 
 def get_config_params(config_id):
     return exec_sql_one("select CompilerOptions from Configurations where ID=" + str(config_id))
+
+
+startup()

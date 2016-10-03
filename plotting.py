@@ -1,9 +1,9 @@
-import db_manager
+import mdb
 import plot
 
 
 def plot_data():
-    db_manager.open_connection()
+    mdb.startup()
 
     statement = "SELECT configurationId, value, options " \
                 "FROM measurements " \
@@ -37,13 +37,13 @@ def plot_data():
     # print x_values
     # print y_values
 
-    db_manager.close_connection()
+    mdb.shutdown()
 
     axis = [int(x_values[0]), int(x_values[-1]), 0, 25]
     x_label = 'Number of Refinements'
     y_label = 'Average CPU Usage'
 
-    plot.plot_graph(x_values, y_values, x_label, y_label, axis)
+    plot.plot_xy_axes(x_values, y_values, x_label, y_label, axis)
 
 
 def filter_options(options, criteria):
