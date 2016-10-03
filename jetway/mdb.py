@@ -3,26 +3,25 @@ import mysql.connector as connector
 import ConfigParser
 import sys
 
-cursor = None
-connection = None
+config_parser = ConfigParser.RawConfigParser()
+config_file_path = r'.dbconfig'
+config_parser.read(config_file_path)
+
+connection = connector.connect(host=config_parser.get('db', 'hostname'),  # your host, usually localhost
+                               user=config_parser.get('db', 'user'),  # your username
+                               passwd=config_parser.get('db', 'password'),  # your password
+                               db=config_parser.get('db', 'database'))  # name of the data base
+cursor = connection.cursor()
 series_id_cache = {}
 nfp_id_cache = {}
 
 
-def startup():
-    global cursor, connection
+def shutdown():
+    if cursor:
+        cursor.close()
 
-    shutdown()
-
-    config_parser = ConfigParser.RawConfigParser()
-    config_file_path = r'.dbconfig'
-    config_parser.read(config_file_path)
-
-    connection = connector.connect(host=config_parser.get('db', 'hostname'),  # your host, usually localhost
-                                   user=config_parser.get('db', 'user'),  # your username
-                                   passwd=config_parser.get('db', 'password'),  # your password
-                                   db=config_parser.get('db', 'database'))  # name of the data base
-    cursor = connection.cursor()
+    if connection:
+        connection.close()
 
 
 def shutdown():
@@ -103,18 +102,18 @@ def get_series_id(series_name):
     return series_id_cache[series_name]
 
 
-def get_NFP_id(nfp):
+def get_nfp_id(nfp):
     """
-    looks up an NFP, creates that NFP if it does not exist
+    looks up an nfp, creates that nfp if it does not exist
     """
     if nfp not in nfp_id_cache:
-        cursor.execute('select ID from NFP where name="' + nfp + '"')
+        cursor.execute('select id from nfp where name="' + nfp + '"')
         r = cursor.fetchone()
 
         if r is None:
-            print "creating new NFP: "+nfp
-            cursor.execute('insert into NFP (Name) values ("' + nfp + '")')
-            cursor.execute('select ID from NFP where name="' + nfp + '"')
+            print "creating new nfp: "+nfp
+            cursor.execute('insert into nfps (Name) values ("' + nfp + '")')
+            cursor.execute('select id from nfps where name="' + nfp + '"')
             connection.commit()
             r = cursor.fetchone()
 
@@ -125,14 +124,14 @@ def get_NFP_id(nfp):
 
 def store_measurements(series_name, config_id, result_map):
     """
-    resultmap is a map from NFP-names to string values representing results
+    resultmap is a map from nfp-names to string values representing results
     """
     global cursor
     assert len(result_map) > 0
-    sql = 'insert into MResults (ConfigurationID, SeriesID, NFPID, Value) values '
+    sql = 'insert into MResults (ConfigurationID, SeriesID, nfpid, Value) values '
 
     for k in result_map:
-        sql += '({0}, {1}, {2}, "{3}"), '.format(config_id, get_series_id(series_name), get_NFP_id(k), result_map[k])
+        sql += '({0}, {1}, {2}, "{3}"), '.format(config_id, get_series_id(series_name), get_nfp_id(k), result_map[k])
 
     cursor.execute(sql[:-2])
     connection.commit()
@@ -168,6 +167,3 @@ def count_remaining_measurements(series_names):
 
 def get_config_params(config_id):
     return exec_sql_one("select CompilerOptions from Configurations where ID=" + str(config_id))
-
-
-startup()
