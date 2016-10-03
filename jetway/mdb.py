@@ -3,17 +3,23 @@ import mysql.connector as connector
 import ConfigParser
 import sys
 
-config_parser = ConfigParser.RawConfigParser()
-config_file_path = r'.dbconfig'
-config_parser.read(config_file_path)
-
-connection = connector.connect(host=config_parser.get('db', 'hostname'),  # your host, usually localhost
-                               user=config_parser.get('db', 'user'),  # your username
-                               passwd=config_parser.get('db', 'password'),  # your password
-                               db=config_parser.get('db', 'database'))  # name of the data base
-cursor = connection.cursor()
+connection = None
+cursor = None
 series_id_cache = {}
 nfp_id_cache = {}
+
+
+def startup():
+    config_parser = ConfigParser.RawConfigParser()
+    config_file_path = r'.dbconfig'
+    config_parser.read(config_file_path)
+
+    global connection, cursor
+    connection = connector.connect(host=config_parser.get('db', 'hostname'),  # your host, usually localhost
+                                   user=config_parser.get('db', 'user'),  # your username
+                                   passwd=config_parser.get('db', 'password'),  # your password
+                                   db=config_parser.get('db', 'database'))  # name of the data base
+    cursor = connection.cursor()
 
 
 def shutdown():
@@ -73,6 +79,7 @@ def select_where(table, clause):
 
 def insert(table, columns, values):
     statement = 'insert into ' + table + ' (' + columns + ') values ' + '({0})'.format(values)
+    print statement
     cursor.execute(statement)
     connection.commit()
 
@@ -105,8 +112,8 @@ def get_nfp_id(nfp):
         if r is None:
             print "creating new nfp: "+nfp
             cursor.execute('insert into nfps (Name) values ("' + nfp + '")')
-            cursor.execute('select id from nfps where name="' + nfp + '"')
             connection.commit()
+            cursor.execute('select id from nfps where name="' + nfp + '"')
             r = cursor.fetchone()
 
         nfp_id_cache[nfp] = r[0]
