@@ -53,7 +53,7 @@ def exec_sql(sql):
     return r
 
 
-def select_options_id(table, options):
+def select_id_where_options(table, options):
     statement = 'select id from ' + table + ' where options = "' + options + '"'
 
     ids = []
@@ -61,6 +61,23 @@ def select_options_id(table, options):
         ids.append(str(element[0]))
 
     return ids
+
+
+def select_where(table, clause):
+    statement = 'select * from ' + table + ' where ' + clause
+
+    results = []
+    for result in exec_sql(statement):
+        new_result = []
+
+        i = 0
+        while i < len(result):
+            new_result.append(str(result[i]))
+            i += 1
+
+        results.append(tuple(new_result))
+
+    return results
 
 
 def insert(table, columns, values):
