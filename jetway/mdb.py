@@ -24,14 +24,6 @@ def shutdown():
         connection.close()
 
 
-def shutdown():
-    if cursor:
-        cursor.close()
-
-    if connection:
-        connection.close()
-
-
 def exec_sql_one(sql):
     cursor.execute(sql)
     r = cursor.fetchone()
