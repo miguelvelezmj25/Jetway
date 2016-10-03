@@ -99,7 +99,7 @@ def get_nfp_id(nfp):
     looks up an nfp, creates that nfp if it does not exist
     """
     if nfp not in nfp_id_cache:
-        cursor.execute('select id from nfp where name="' + nfp + '"')
+        cursor.execute('select id from nfps where name="' + nfp + '"')
         r = cursor.fetchone()
 
         if r is None:
