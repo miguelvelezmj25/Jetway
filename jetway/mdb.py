@@ -50,6 +50,16 @@ def exec_sql(sql):
     return r
 
 
+def select_id_where_options_like(table, options):
+    statement = 'select id from ' + table + ' where options like "' + options + '"'
+
+    ids = []
+    for element in exec_sql(statement):
+        ids.append(str(element[0]))
+
+    return ids
+
+
 def select_id_where_options(table, options):
     statement = 'select id from ' + table + ' where options = "' + options + '"'
 
