@@ -31,6 +31,7 @@ def shutdown():
 
 
 def exec_sql_one(sql):
+    print sql
     cursor.execute(sql)
     r = cursor.fetchone()
 
@@ -41,6 +42,7 @@ def exec_sql_one(sql):
 
 
 def exec_sql(sql):
+    print sql
     cursor.execute(sql)
     r = cursor.fetchall()
 
@@ -50,18 +52,9 @@ def exec_sql(sql):
     return r
 
 
-def select_id_where_options_like(table, options):
-    statement = 'select id from ' + table + ' where options like "' + options + '"'
-
-    ids = []
-    for element in exec_sql(statement):
-        ids.append(str(element[0]))
-
-    return ids
-
-
 def select_id_where_options(table, options):
     statement = 'select id from ' + table + ' where options = "' + options + '"'
+    print statement
 
     ids = []
     for element in exec_sql(statement):
@@ -72,6 +65,7 @@ def select_id_where_options(table, options):
 
 def select_where(table, clause):
     statement = 'select * from ' + table + ' where ' + clause
+    print statement
 
     results = []
     for result in exec_sql(statement):
@@ -90,6 +84,7 @@ def select_where(table, clause):
 def insert(table, columns, values):
     statement = 'insert into ' + table + ' (' + columns + ') values ' + '({0})'.format(values)
     print statement
+
     cursor.execute(statement)
     connection.commit()
 
@@ -99,7 +94,10 @@ def get_series_id(series_name):
     looks up the series. fails if series does not exist
     """
     if series_name not in series_id_cache:
-        cursor.execute('select SeriesId from Series where name="' + series_name + '"')
+        statement = 'select SeriesId from Series where name="' + series_name + '"'
+        print statement
+
+        cursor.execute(statement)
         r = cursor.fetchone()
 
         if r is None:
@@ -116,14 +114,22 @@ def get_nfp_id(nfp):
     looks up an nfp, creates that nfp if it does not exist
     """
     if nfp not in nfp_id_cache:
-        cursor.execute('select id from nfps where name="' + nfp + '"')
+        statement = 'select id from nfps where name="' + nfp + '"'
+        print statement
+        cursor.execute(statement)
         r = cursor.fetchone()
 
         if r is None:
             print "creating new nfp: "+nfp
-            cursor.execute('insert into nfps (Name) values ("' + nfp + '")')
+            statement = 'insert into nfps (Name) values ("' + nfp + '")'
+            print statement
+
+            cursor.execute(statement)
             connection.commit()
-            cursor.execute('select id from nfps where name="' + nfp + '"')
+            statement = 'select id from nfps where name="' + nfp + '"'
+            print statement
+
+            cursor.execute(statement)
             r = cursor.fetchone()
 
         nfp_id_cache[nfp] = r[0]
@@ -142,6 +148,7 @@ def store_measurements(series_name, config_id, result_map):
     for k in result_map:
         sql += '({0}, {1}, {2}, "{3}"), '.format(config_id, get_series_id(series_name), get_nfp_id(k), result_map[k])
 
+    print sql[:-2]
     cursor.execute(sql[:-2])
     connection.commit()
 
@@ -159,7 +166,10 @@ def claim_next_measurement(series_name):
         next_config = exec_sql_one("select ConfigurationID from Todos where SeriesId={0} order by priority, ConfigurationID Limit 1".format(sid))
 
         if next_config is not None:
-            cursor.execute("delete from Todos where SeriesId={0} and ConfigurationId={1}".format(sid, next_config))
+            statement = "delete from Todos where SeriesId={0} and ConfigurationId={1}".format(sid, next_config)
+            print statement
+
+            cursor.execute(statement)
 
         connection.commit();
         return next_config
