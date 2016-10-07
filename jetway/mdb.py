@@ -54,7 +54,6 @@ def exec_sql(sql):
 
 def select_id_where_options(table, options):
     statement = 'select id from ' + table + ' where options = "' + options + '"'
-    print statement
 
     ids = []
     for element in exec_sql(statement):
@@ -65,7 +64,6 @@ def select_id_where_options(table, options):
 
 def select_where(table, clause):
     statement = 'select * from ' + table + ' where ' + clause
-    print statement
 
     results = []
     for result in exec_sql(statement):
