@@ -134,6 +134,7 @@ def get_next_todo():
             statement = 'delete from todos where configuration_id = {0}'.format(id)
 
         print statement
+        cursor.execute(statement)
         connection.commit()
 
     return id
