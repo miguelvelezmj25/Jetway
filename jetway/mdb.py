@@ -139,6 +139,19 @@ def get_next_todo():
     return id
 
 
+def add_todo(id, iterations, priority=None):
+    if priority is not None:
+        statement = 'insert into todos (configuration_id, iterations, priority) ' \
+                    'values ("{0}", {1}, {2})'.format(id, iterations, priority)
+    else:
+        statement = 'insert into todos (configuration_id, iterations) ' \
+                    'values ("{0}", {1})'.format(id, iterations)
+
+    print statement
+    cursor.execute(statement)
+    connection.commit()
+
+
 ############### NOT TESTED ###############
 
 def get_series_id(series_name):
