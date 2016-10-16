@@ -131,7 +131,7 @@ def get_next_todo():
         if iterations > 1:
             statement = 'update todos set iterations = iterations - 1 where configuration_id = "{0}"'.format(id)
         else:
-            statement = 'delete from todos where configuration_id = {0}'.format(id)
+            statement = 'delete from todos where configuration_id = "{0}"'.format(id)
 
         print statement
         cursor.execute(statement)
