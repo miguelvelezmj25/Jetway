@@ -157,10 +157,10 @@ def add_todo(id, iterations, worker=None, priority=None):
                     'values ("{0}", {1}, {2})'.format(id, iterations, priority)
     elif worker is not None and priority is None:
         statement = 'insert into todos (configuration_id, iterations, worker) ' \
-                    'values ("{0}", {1}, {2})'.format(id, iterations, worker)
+                    'values ("{0}", {1}, "{2}")'.format(id, iterations, worker)
     else:
         statement = 'insert into todos (configuration_id, iterations, worker, priority) ' \
-                    'values ("{0}", {1}, {2})'.format(id, iterations, worker, priority)
+                    'values ("{0}", {1}, "{2}", {3})'.format(id, iterations, worker, priority)
 
     print statement
     cursor.execute(statement)
