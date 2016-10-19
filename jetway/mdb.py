@@ -120,7 +120,7 @@ def get_configurations_like_option(option):
 
 def get_next_todo(column=None, value=None):
     if column is not None and value is not None:
-        statement = 'select * from todos where {0}} = {1} order by priority limit 1'.format(column, value)
+        statement = 'select * from todos where {0} = {1} order by priority limit 1'.format(column, value)
     else:
         statement = 'select * from todos order by priority limit 1'
     print statement
