@@ -118,12 +118,20 @@ def get_configurations_like_option(option):
     return configurations
 
 
-def get_next_todo():
-    statement = 'select * from todos order by priority limit 1'
+def get_next_todo(id=None):
+    if id is not None:
+        statement = 'select * from todos where id = "{0}" order by priority limit 1'.format(id)
+    else:
+        statement = 'select * from todos order by priority limit 1'
     print statement
 
     cursor.execute(statement)
     result = cursor.fetchall()
+
+    if len(result) == 0:
+        print 'There are not more todos in the database'
+        return None
+
     id = result[0][0]
     iterations = result[0][1]
 
