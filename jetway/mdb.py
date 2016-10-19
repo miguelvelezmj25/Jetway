@@ -148,13 +148,19 @@ def get_next_todo(id=None):
     return id
 
 
-def add_todo(id, iterations, priority=None):
-    if priority is not None:
-        statement = 'insert into todos (configuration_id, iterations, priority) ' \
-                    'values ("{0}", {1}, {2})'.format(id, iterations, priority)
-    else:
+def add_todo(id, iterations, worker=None, priority=None):
+    if worker is None and priority is None:
         statement = 'insert into todos (configuration_id, iterations) ' \
                     'values ("{0}", {1})'.format(id, iterations)
+    elif priority is not None and worker is None:
+        statement = 'insert into todos (configuration_id, iterations, priority) ' \
+                    'values ("{0}", {1}, {2})'.format(id, iterations, priority)
+    elif woker is not None and priority is None:
+        statement = 'insert into todos (configuration_id, iterations, worker) ' \
+                    'values ("{0}", {1}, {2})'.format(id, iterations, worker)
+    else:
+        statement = 'insert into todos (configuration_id, iterations, worker, priority) ' \
+                    'values ("{0}", {1}, {2})'.format(id, iterations, worker, priority)
 
     print statement
     cursor.execute(statement)
