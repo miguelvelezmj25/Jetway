@@ -155,7 +155,7 @@ def add_todo(id, iterations, worker=None, priority=None):
     elif priority is not None and worker is None:
         statement = 'insert into todos (configuration_id, iterations, priority) ' \
                     'values ("{0}", {1}, {2})'.format(id, iterations, priority)
-    elif woker is not None and priority is None:
+    elif worker is not None and priority is None:
         statement = 'insert into todos (configuration_id, iterations, worker) ' \
                     'values ("{0}", {1}, {2})'.format(id, iterations, worker)
     else:
