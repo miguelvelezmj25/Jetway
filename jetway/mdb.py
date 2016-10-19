@@ -136,8 +136,12 @@ def get_next_todo(column=None, value=None):
     iterations = result[0][1]
 
     if id:
-        if iterations > 1:
+        if iterations > 1 and column is not None and value is not None:
+            statement = 'update todos set iterations = iterations - 1 where configuration_id = "{0}" ' \
+                        'and {1} = {2}'.format(id, column, value)
+        elif iterations > 1:
             statement = 'update todos set iterations = iterations - 1 where configuration_id = "{0}"'.format(id)
+
         else:
             statement = 'delete from todos where configuration_id = "{0}"'.format(id)
 
