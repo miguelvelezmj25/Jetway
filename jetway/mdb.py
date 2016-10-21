@@ -175,7 +175,7 @@ def get_next_todo(column=None, value=None):
     if column is not None and value is not None:
         statement = 'select * from todos where {0} = {1} order by priority limit 1'.format(column, value)
     else:
-        statement = 'select * from todos where worker is NULL order by priority limit 1'
+        statement = 'select * from todos where worker is NULL or worker = "" order by priority limit 1'
     print statement
 
     cursor.execute(statement)
