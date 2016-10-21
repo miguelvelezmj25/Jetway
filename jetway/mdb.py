@@ -10,6 +10,11 @@ nfp_id_cache = {}
 
 
 def startup(db):
+    """
+    Connect to the database
+    :param db:
+    :return:
+    """
     config_parser = ConfigParser.RawConfigParser()
     config_file_path = r'.dbconfig'
     config_parser.read(config_file_path)
@@ -23,6 +28,10 @@ def startup(db):
 
 
 def shutdown():
+    """
+    Shutdown the connection to the database
+    :return:
+    """
     if cursor:
         cursor.close()
 
@@ -31,6 +40,11 @@ def shutdown():
 
 
 def exec_sql_one(sql):
+    """
+    Use when you know that you will get a single value in the return
+    :param sql:
+    :return:
+    """
     print sql
     cursor.execute(sql)
     r = cursor.fetchone()
@@ -42,6 +56,11 @@ def exec_sql_one(sql):
 
 
 def exec_sql(sql):
+    """
+    Return all the results from the query
+    :param sql:
+    :return:
+    """
     print sql
     cursor.execute(sql)
     r = cursor.fetchall()
@@ -53,8 +72,13 @@ def exec_sql(sql):
 
 
 def select_ids(sql):
+    """
+    Return all the ids from a query. This assumes that the table you want to query has a column named 'id'. It
+    transforms all the ids to strings and returns an array of strings.
+    :param sql:
+    :return:
+    """
     statement = 'select id ' + sql
-    print statement
 
     ids = []
     for element in exec_sql(statement):
@@ -64,6 +88,13 @@ def select_ids(sql):
 
 
 def insert(table, columns, values):
+    """
+    Insert values into a table by specifying the columns
+    :param table:
+    :param columns:
+    :param values:
+    :return:
+    """
     statement = 'insert into ' + table + ' (' + columns + ') values ({0})'.format(values)
     print statement
 
@@ -73,7 +104,7 @@ def insert(table, columns, values):
 
 def get_nfp_id(nfp):
     """
-    looks up an nfp, creates that nfp if it does not exist
+    Looks up an nfp, creates that nfp if it does not exist. It returns the corresponding id.
     """
     if nfp not in nfp_id_cache:
         statement = 'select id from nfps where name="{0}"'.format(nfp)
@@ -100,14 +131,28 @@ def get_nfp_id(nfp):
 
 
 def add_configuration(option):
+    """
+    Add a configuration to the 'configurations' table. A configuration is specified by an option. It returns the id
+    of the new configuration
+    :param option:
+    :return:
+    """
     statement = 'insert into configurations (options) values ("{0}")'.format(option)
     print statement
 
     cursor.execute(statement)
     connection.commit()
 
+    return select_ids('from configurations where options = "{0}"'.format(option))[0]
+
 
 def get_configurations_like_option(option):
+    """
+    Get a configuration where the option is like the value provided. It returns an array of tuples of
+    unprocessed results.
+    :param option:
+    :return:
+    """
     statement = 'select * from configurations where options like "{0}"'.format(option)
     print statement
 
@@ -119,6 +164,14 @@ def get_configurations_like_option(option):
 
 
 def get_next_todo(column=None, value=None):
+    """
+    Get the next todo from the 'todos' table. You can run the query by specifying a column and value. You can pass any
+    value to the query. This means that you have to format the value before executing this function. If it is the last
+    job for a specific id, the job is removed from the database. If a job was found, the id is returned.
+    :param column:
+    :param value:
+    :return:
+    """
     if column is not None and value is not None:
         statement = 'select * from todos where {0} = {1} order by priority limit 1'.format(column, value)
     else:
@@ -132,7 +185,7 @@ def get_next_todo(column=None, value=None):
         print 'There are not more todos in the database'
         return None
 
-    id = result[0][0]
+    id = str(result[0][0])
     iterations = result[0][1]
 
     if id:
@@ -156,6 +209,14 @@ def get_next_todo(column=None, value=None):
 
 
 def add_todo(id, iterations, worker=None, priority=None):
+    """
+    Add a job to the 'todos' table.
+    :param id:
+    :param iterations:
+    :param worker:
+    :param priority:
+    :return:
+    """
     if worker is None and priority is None:
         statement = 'insert into todos (configuration_id, iterations) ' \
                     'values ("{0}", {1})'.format(id, iterations)
