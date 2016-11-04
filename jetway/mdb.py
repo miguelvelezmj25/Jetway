@@ -15,6 +15,10 @@ def startup(db):
     :param db:
     :return:
     """
+
+    if connection is not None and connection.is_connected():
+        return
+
     config_parser = ConfigParser.RawConfigParser()
     config_file_path = r'.dbconfig'
     config_parser.read(config_file_path)
@@ -23,7 +27,8 @@ def startup(db):
     connection = connector.connect(host=config_parser.get(db, 'hostname'),  # your host, usually localhost
                                    user=config_parser.get(db, 'user'),  # your username
                                    passwd=config_parser.get(db, 'password'),  # your password
-                                   db=config_parser.get(db, 'database'))  # name of the data base
+                                   db=config_parser.get(db, 'database')   # name of the data base
+                                   )
     cursor = connection.cursor()
 
 
