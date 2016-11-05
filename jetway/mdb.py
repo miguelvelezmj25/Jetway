@@ -16,6 +16,7 @@ def startup(db):
     :return:
     """
 
+    global connection, cursor
     if connection is not None and connection.is_connected():
         return
 
@@ -23,7 +24,6 @@ def startup(db):
     config_file_path = r'.dbconfig'
     config_parser.read(config_file_path)
 
-    global connection, cursor
     connection = connector.connect(host=config_parser.get(db, 'hostname'),  # your host, usually localhost
                                    user=config_parser.get(db, 'user'),  # your username
                                    passwd=config_parser.get(db, 'password'),  # your password
