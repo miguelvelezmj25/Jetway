@@ -222,18 +222,43 @@ def add_todo(id, iterations, worker=None, priority=None):
     :param priority:
     :return:
     """
-    if worker is None and priority is None:
-        statement = 'insert into todos (configuration_id, iterations) ' \
-                    'values ("{0}", {1})'.format(id, iterations)
-    elif priority is not None and worker is None:
-        statement = 'insert into todos (configuration_id, iterations, priority) ' \
-                    'values ("{0}", {1}, {2})'.format(id, iterations, priority)
-    elif worker is not None and priority is None:
-        statement = 'insert into todos (configuration_id, iterations, worker) ' \
-                    'values ("{0}", {1}, "{2}")'.format(id, iterations, worker)
+    if worker is None:
+        statement = 'select * from todos where configuration_id = "{}" and worker is NULL or worker = ""'.format(id)
     else:
-        statement = 'insert into todos (configuration_id, iterations, worker, priority) ' \
-                    'values ("{0}", {1}, "{2}", {3})'.format(id, iterations, worker, priority)
+        statement = 'select * from todos where configuration_id = "{}" and worker = "{}"'.format(id, worker)
+
+
+    cursor.execute(statement)
+    result = cursor.fetchall()
+
+    if worker is None and priority is None:
+        if len(result) != 0:
+            statement = 'update todos set iterations = iterations + {} where configuration_id = "{}" ' \
+                        'and worker is NULL or worker = ""'.format(iterations, id)
+        else:
+            statement = 'insert into todos (configuration_id, iterations) ' \
+                        'values ("{0}", {1})'.format(id, iterations)
+    elif priority is not None and worker is None:
+        if len(result) != 0:
+            statement = 'update todos set iterations = iterations + {}, priority = {} where configuration_id = "{}" ' \
+                        'and worker is NULL or worker = ""'.format(iterations, priority, id)
+        else:
+            statement = 'insert into todos (configuration_id, iterations, priority) ' \
+                        'values ("{0}", {1}, {2})'.format(id, iterations, priority)
+    elif worker is not None and priority is None:
+        if len(result) != 0:
+            statement = 'update todos set iterations = iterations + {} where configuration_id = "{}" ' \
+                        'and worker = "{}"'.format(iterations, id, worker)
+        else:
+            statement = 'insert into todos (configuration_id, iterations, worker) ' \
+                        'values ("{0}", {1}, "{2}")'.format(id, iterations, worker)
+    else:
+        if len(result) != 0:
+            statement = 'update todos set iterations = iterations + {}, priority = {} where configuration_id = "{}" ' \
+                        'and worker = "{}"'.format(iterations, priority, id, worker)
+        else:
+            statement = 'insert into todos (configuration_id, iterations, worker, priority) ' \
+                        'values ("{0}", {1}, "{2}", {3})'.format(id, iterations, worker, priority)
 
     print statement
     cursor.execute(statement)
