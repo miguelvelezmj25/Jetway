@@ -223,10 +223,9 @@ def add_todo(id, iterations, worker=None, priority=None):
     :return:
     """
     if worker is None:
-        statement = 'select * from todos where configuration_id = "{}" and worker is NULL or worker = ""'.format(id)
+        statement = 'select * from todos where configuration_id = "{}" and (worker is NULL or worker = "")'.format(id)
     else:
         statement = 'select * from todos where configuration_id = "{}" and worker = "{}"'.format(id, worker)
-
 
     cursor.execute(statement)
     result = cursor.fetchall()
@@ -234,14 +233,14 @@ def add_todo(id, iterations, worker=None, priority=None):
     if worker is None and priority is None:
         if len(result) != 0:
             statement = 'update todos set iterations = iterations + {} where configuration_id = "{}" ' \
-                        'and worker is NULL or worker = ""'.format(iterations, id)
+                        'and (worker is NULL or worker = "")'.format(iterations, id)
         else:
             statement = 'insert into todos (configuration_id, iterations) ' \
                         'values ("{0}", {1})'.format(id, iterations)
     elif priority is not None and worker is None:
         if len(result) != 0:
             statement = 'update todos set iterations = iterations + {}, priority = {} where configuration_id = "{}" ' \
-                        'and worker is NULL or worker = ""'.format(iterations, priority, id)
+                        'and (worker is NULL or worker = "")'.format(iterations, priority, id)
         else:
             statement = 'insert into todos (configuration_id, iterations, priority) ' \
                         'values ("{0}", {1}, {2})'.format(id, iterations, priority)
